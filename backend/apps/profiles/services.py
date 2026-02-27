@@ -1,4 +1,9 @@
 def calculate_requirements(sex, height_cm, weight_kg, age, activity_level, goal):
+    
+    height_cm = float(height_cm)
+    weight_kg = float(weight_kg)
+    age = float(age)
+
     formula = (10 * weight_kg) + (6.25 * height_cm) - (5 * age)
     activity_factors = {
         'sedentary': 1.2,
