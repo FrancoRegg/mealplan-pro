@@ -13,6 +13,14 @@ class IngredientView(APIView):
         except Profile.DoesNotExist:
             return Response({'error': 'Perfil no encontrado. Complete su perfil.'}, status=status.HTTP_404_NOT_FOUND)
 
+class IngredientAvailableView(APIView):
+    def get(self, request):
+        try:
+            serializer = IngredientSerializer(Ingredient.objects.filter(profileingredient__profile=request.user.profile, profileingredient__is_available=True), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Perfil no encontrado. Complete su perfil.'}, status=status.HTTP_404_NOT_FOUND)
+
 class IngredientAvailabilityView(APIView):    
     def put(self, request):
         try:
