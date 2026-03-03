@@ -12,3 +12,21 @@ class IngredientView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Profile.DoesNotExist:
             return Response({'error': 'Perfil no encontrado. Complete su perfil.'}, status=status.HTTP_404_NOT_FOUND)
+
+class IngredientAvailabilityView(APIView):    
+    def put(self, request):
+        try:
+            ingredients = request.data.get('ingredients')
+            for i in ingredients:
+                ProfileIngredient.objects.update_or_create(
+                    profile=request.user.profile,
+                    ingredient=Ingredient.objects.get(id=i['id']),
+                    defaults={
+                        'is_available':i['is_available']
+                    }
+                )
+            return Response({'message': 'Disponibilidad actualizada correctamente'}, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Perfil no encontrado. Complete su perfil.'}, status=status.HTTP_404_NOT_FOUND)
+        except Ingredient.DoesNotExist:
+            return Response({'error': 'Ingrediente no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
