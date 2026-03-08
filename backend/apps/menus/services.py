@@ -35,60 +35,62 @@ def generate_menu(profile, ingredient_available):
             is_locked=False
         )
 
-        lunch_data = generate_meal(ingredient_available, target_calories, target_protein)
-        dinner_data = generate_meal(ingredient_available, target_calories, target_protein)
+        meals = ['lunch':]
 
-        total_cal_lunch = lunch_data['protein_calories'] + lunch_data['vegetable_calories'] + lunch_data['carbohydrate_calories']
-        total_fat_lunch = lunch_data['protein_fat'] + lunch_data['vegetable_fat'] + lunch_data['carbohydrate_fat']
+        # lunch_data = generate_meal(ingredient_available, target_calories, target_protein)
+        # dinner_data = generate_meal(ingredient_available, target_calories, target_protein)
 
-        total_cal_dinner = dinner_data['protein_calories'] + dinner_data['vegetable_calories'] + dinner_data['carbohydrate_calories']
-        total_fat_dinner = dinner_data['protein_fat'] + dinner_data['vegetable_fat'] + dinner_data['carbohydrate_fat']
+        # total_cal_lunch = lunch_data['protein_calories'] + lunch_data['vegetable_calories'] + lunch_data['carbohydrate_calories']
+        # total_fat_lunch = lunch_data['protein_fat'] + lunch_data['vegetable_fat'] + lunch_data['carbohydrate_fat']
 
-        lunch_init = Meal.objects.create(
-            menu_day=initia_day,
-            meal_type='lunch',
-            total_calories=total_cal_lunch, 
-            total_protein=lunch_data['protein_g'], 
-            total_carbs=lunch_data['carbohydrate_g'], 
-            total_fat=total_fat_lunch
-        )
+        # total_cal_dinner = dinner_data['protein_calories'] + dinner_data['vegetable_calories'] + dinner_data['carbohydrate_calories']
+        # total_fat_dinner = dinner_data['protein_fat'] + dinner_data['vegetable_fat'] + dinner_data['carbohydrate_fat']
 
-        dinner_init = Meal.objects.create(
-            menu_day=initia_day,
-            meal_type='dinner',
-            total_calories=total_cal_dinner, 
-            total_protein=dinner_data['protein_g'], 
-            total_carbs=dinner_data['carbohydrate_g'], 
-            total_fat=total_fat_dinner
-        )
+        # lunch_init = Meal.objects.create(
+        #     menu_day=initia_day,
+        #     meal_type='lunch',
+        #     total_calories=total_cal_lunch, 
+        #     total_protein=lunch_data['protein_g'], 
+        #     total_carbs=lunch_data['carbohydrate_g'], 
+        #     total_fat=total_fat_lunch
+        # )
 
-        lunch_final = Meal.objects.create(
-            menu_day=final_day,
-            meal_type='lunch',
-            total_calories=total_cal_lunch, 
-            total_protein=lunch_data['protein_g'], 
-            total_carbs=lunch_data['carbohydrate_g'], 
-            total_fat=total_fat_lunch
-        )
+        # dinner_init = Meal.objects.create(
+        #     menu_day=initia_day,
+        #     meal_type='dinner',
+        #     total_calories=total_cal_dinner, 
+        #     total_protein=dinner_data['protein_g'], 
+        #     total_carbs=dinner_data['carbohydrate_g'], 
+        #     total_fat=total_fat_dinner
+        # )
 
-        dinner_final = Meal.objects.create(
-            menu_day=final_day,
-            meal_type='dinner',
-            total_calories=total_cal_dinner, 
-            total_protein=dinner_data['protein_g'], 
-            total_carbs=dinner_data['carbohydrate_g'], 
-            total_fat=total_fat_dinner
-        )
+        # lunch_final = Meal.objects.create(
+        #     menu_day=final_day,
+        #     meal_type='lunch',
+        #     total_calories=total_cal_lunch, 
+        #     total_protein=lunch_data['protein_g'], 
+        #     total_carbs=lunch_data['carbohydrate_g'], 
+        #     total_fat=total_fat_lunch
+        # )
 
-        MealItem.objects.create(
-            meal=lunch_init,
-            ingredient=lunch_data['protein_ingredient'],
-            quantity_grams=lunch_data['protein_g'],
-            calories=lunch_data['protein_calories'],
-            protein=lunch_data['protein_protein'],
-            carbs=lunch_data['protein_carbs'],
-            fat=lunch_data['protein_fat']
-        )
+        # dinner_final = Meal.objects.create(
+        #     menu_day=final_day,
+        #     meal_type='dinner',
+        #     total_calories=total_cal_dinner, 
+        #     total_protein=dinner_data['protein_g'], 
+        #     total_carbs=dinner_data['carbohydrate_g'], 
+        #     total_fat=total_fat_dinner
+        # )
+
+        # MealItem.objects.create(
+        #     meal=lunch_init,
+        #     ingredient=lunch_data['protein_ingredient'],
+        #     quantity_grams=lunch_data['protein_g'],
+        #     calories=lunch_data['protein_calories'],
+        #     protein=lunch_data['protein_protein'],
+        #     carbs=lunch_data['protein_carbs'],
+        #     fat=lunch_data['protein_fat']
+        # )
 
 def generate_meal(available_ingredients, target_calories, target_protein):
     proteins = [i for i in available_ingredients if i.category == 'protein']
@@ -104,6 +106,7 @@ def generate_meal(available_ingredients, target_calories, target_protein):
     protein_calories = (protein_g * float(protein_ingredient.calories_100g)) / 100
     vegetable_calories = (vegetable_g * float(vegetable_ingredient.calories_100g)) / 100
     remaining_calories = target_calories - protein_calories - vegetable_calories
+    remaining_calories = max(remaining_calories, 50.0)
     carbohydrate_g = (remaining_calories * 100) / float(carb_ingredient.calories_100g)
 
     protein_protein = (protein_g * float(protein_ingredient.protein_100g)) / 100
