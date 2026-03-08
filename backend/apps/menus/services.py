@@ -35,8 +35,35 @@ def generate_menu(profile, ingredient_available):
             is_locked=False
         )
 
-        meals = ['lunch':]
+        meals_data = {
+            'lunch': generate_meal(ingredient_available, target_calories, target_protein),
+            'dinner': generate_meal(ingredient_available, target_calories, target_protein) 
+        }
 
+        for meal_type, meal_data in meals_data.items():
+            total_cal = meal_data['protein_calories'] + meal_data['vegetable_calories'] + meal_data['carbohydrate_calories']
+            total_protein = meal_data['protein_protein'] + meal_data['vegetable_protein'] + meal_data['carbohydrate_protein']
+            total_carbohydrate = meal_data['protein_carbs'] + meal_data['vegetable_carbs'] + meal_data['carbohydrate_carbs']
+            total_fat = meal_data['protein_fat'] + meal_data['vegetable_fat'] + meal_data['carbohydrate_fat']
+
+            init_meal = Meal.objects.create(
+                menu_day=initia_day,
+                meal_type=meal_type,
+                total_calories=total_cal, 
+                total_protein=total_protein, 
+                total_carbs=total_carbohydrate, 
+                total_fat=total_fat
+            )
+
+            final_meal = Meal.objects.create(
+                menu_day=final_day,
+                meal_type=meal_type,
+                total_calories=total_cal, 
+                total_protein=total_protein, 
+                total_carbs=total_carbohydrate, 
+                total_fat=total_fat
+            )
+        
         # lunch_data = generate_meal(ingredient_available, target_calories, target_protein)
         # dinner_data = generate_meal(ingredient_available, target_calories, target_protein)
 
@@ -123,21 +150,21 @@ def generate_meal(available_ingredients, target_calories, target_protein):
 
     return {
         'protein_ingredient':protein_ingredient,
-        'protein_g':protein_g,
-        'protein_calories':protein_calories,
-        'protein_protein':protein_protein,
-        'protein_carbs':protein_carbs,
-        'protein_fat':protein_fat,
-        'vegetable_ingredient':vegetable_ingredient,
-        'vegetable_g':vegetable_g,
-        'vegetable_calories':vegetable_calories,
-        'vegetable_protein':vegetable_protein,
-        'vegetable_carbs':vegetable_carbs,
-        'vegetable_fat':vegetable_fat,
+        'protein_g':round(protein_g, 2),
+        'protein_calories':round(protein_calories, 2),
+        'protein_protein':round(protein_protein, 2),
+        'protein_carbs':round(protein_carbs, 2),
+        'protein_fat':round(protein_fat, 2),
+        'vegetable_ingredient':vegetable_ingredient, 
+        'vegetable_g':round(vegetable_g, 2), 
+        'vegetable_calories':round(vegetable_calories, 2),
+        'vegetable_protein':round(vegetable_protein, 2),
+        'vegetable_carbs':round(vegetable_carbs, 2),
+        'vegetable_fat':round(vegetable_fat, 2),
         'carb_ingredient':carb_ingredient,
-        'carbohydrate_g':carbohydrate_g,
-        'carbohydrate_calories':remaining_calories,
-        'carbohydrate_protein':carbohydrate_protein,
-        'carbohydrate_carbs':carbohydrate_carbs,
-        'carbohydrate_fat':carbohydrate_fat
+        'carbohydrate_g':round(carbohydrate_g, 2),
+        'carbohydrate_calories':round(remaining_calories, 2),
+        'carbohydrate_protein':round(carbohydrate_protein, 2),
+        'carbohydrate_carbs':round(carbohydrate_carbs, 2),
+        'carbohydrate_fat':round(carbohydrate_fat, 2)
     }
