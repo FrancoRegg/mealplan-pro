@@ -2,11 +2,11 @@ from .models import *
 from datetime import date, timedelta
 import random
 
-def generate_menu(profile, ingredient_available):
+def generate_menu(profile, ingredient_available): #Crea el menu completo en la BD
     today = date.today()
     end_menu = today + timedelta(days=14)
 
-    new_menu = Menu.objects.create(
+    new_menu = Menu.objects.create( #Objeto menu con usuario 
         user=profile.user,
         name="Menú Generado",
         start_date=today,
@@ -14,13 +14,15 @@ def generate_menu(profile, ingredient_available):
         is_active=True
     )
 
-    target_calories = profile.daily_calories / 2
-    target_protein = profile.daily_protein / 2
+    target_calories = float(profile.daily_calories) / 2
+    target_protein = float(profile.daily_protein) / 2
 
-    for i in range(7):
+
+    for i in range(7): # Crea pares de dias, 1-2, 3-4...
         start_day = (i * 2) + 1
         end_day = (i * 2) + 2
 
+        # Genera menu de comida y cena para cada par de dias. 
         initia_day = MenuDay.objects.create(
             menu=new_menu,
             day_number=start_day,
@@ -40,13 +42,16 @@ def generate_menu(profile, ingredient_available):
             'dinner': generate_meal(ingredient_available, target_calories, target_protein) 
         }
 
+        
+        # Calculo de totales
         for meal_type, meal_data in meals_data.items():
             total_cal = meal_data['protein_calories'] + meal_data['vegetable_calories'] + meal_data['carbohydrate_calories']
             total_protein = meal_data['protein_protein'] + meal_data['vegetable_protein'] + meal_data['carbohydrate_protein']
             total_carbohydrate = meal_data['protein_carbs'] + meal_data['vegetable_carbs'] + meal_data['carbohydrate_carbs']
             total_fat = meal_data['protein_fat'] + meal_data['vegetable_fat'] + meal_data['carbohydrate_fat']
 
-            init_meal = Meal.objects.create(
+            # Crea comida para ambos dias (init, final) con los totales calculados
+            init_meal = Meal.objects.create( 
                 menu_day=initia_day,
                 meal_type=meal_type,
                 total_calories=total_cal, 
@@ -63,71 +68,54 @@ def generate_menu(profile, ingredient_available):
                 total_carbs=total_carbohydrate, 
                 total_fat=total_fat
             )
-        
-        # lunch_data = generate_meal(ingredient_available, target_calories, target_protein)
-        # dinner_data = generate_meal(ingredient_available, target_calories, target_protein)
 
-        # total_cal_lunch = lunch_data['protein_calories'] + lunch_data['vegetable_calories'] + lunch_data['carbohydrate_calories']
-        # total_fat_lunch = lunch_data['protein_fat'] + lunch_data['vegetable_fat'] + lunch_data['carbohydrate_fat']
+            items = [
+                {
+                    'ingredient': meal_data['protein_ingredient'],
+                    'quantity_grams': meal_data['protein_g'],
+                    'calories': meal_data['protein_calories'],
+                    'protein': meal_data['protein_protein'],
+                    'carbs': meal_data['protein_carbs'],
+                    'fat': meal_data['protein_fat']
+                }, 
+                {
+                    'ingredient': meal_data['vegetable_ingredient'],
+                    'quantity_grams': meal_data['vegetable_g'],
+                    'calories': meal_data['vegetable_calories'],
+                    'protein': meal_data['vegetable_protein'],
+                    'carbs': meal_data['vegetable_carbs'],
+                    'fat': meal_data['vegetable_fat']
+                }, 
+                {
+                    'ingredient': meal_data['carb_ingredient'],
+                    'quantity_grams': meal_data['carbohydrate_g'],
+                    'calories': meal_data['carbohydrate_calories'],
+                    'protein': meal_data['carbohydrate_protein'],
+                    'carbs': meal_data['carbohydrate_carbs'],
+                    'fat': meal_data['carbohydrate_fat']
+                }
+            ]
 
-        # total_cal_dinner = dinner_data['protein_calories'] + dinner_data['vegetable_calories'] + dinner_data['carbohydrate_calories']
-        # total_fat_dinner = dinner_data['protein_fat'] + dinner_data['vegetable_fat'] + dinner_data['carbohydrate_fat']
+            # Totales de gramos y macros por comida
+            for item in items:
+                MealItem.objects.create(meal=init_meal, **item)
+                MealItem.objects.create(meal=final_meal, **item)
 
-        # lunch_init = Meal.objects.create(
-        #     menu_day=initia_day,
-        #     meal_type='lunch',
-        #     total_calories=total_cal_lunch, 
-        #     total_protein=lunch_data['protein_g'], 
-        #     total_carbs=lunch_data['carbohydrate_g'], 
-        #     total_fat=total_fat_lunch
-        # )
+    return new_menu
+ 
+def generate_meal(available_ingredients, target_calories, target_protein): # Funcion auxiliar, genera una comida individual
 
-        # dinner_init = Meal.objects.create(
-        #     menu_day=initia_day,
-        #     meal_type='dinner',
-        #     total_calories=total_cal_dinner, 
-        #     total_protein=dinner_data['protein_g'], 
-        #     total_carbs=dinner_data['carbohydrate_g'], 
-        #     total_fat=total_fat_dinner
-        # )
-
-        # lunch_final = Meal.objects.create(
-        #     menu_day=final_day,
-        #     meal_type='lunch',
-        #     total_calories=total_cal_lunch, 
-        #     total_protein=lunch_data['protein_g'], 
-        #     total_carbs=lunch_data['carbohydrate_g'], 
-        #     total_fat=total_fat_lunch
-        # )
-
-        # dinner_final = Meal.objects.create(
-        #     menu_day=final_day,
-        #     meal_type='dinner',
-        #     total_calories=total_cal_dinner, 
-        #     total_protein=dinner_data['protein_g'], 
-        #     total_carbs=dinner_data['carbohydrate_g'], 
-        #     total_fat=total_fat_dinner
-        # )
-
-        # MealItem.objects.create(
-        #     meal=lunch_init,
-        #     ingredient=lunch_data['protein_ingredient'],
-        #     quantity_grams=lunch_data['protein_g'],
-        #     calories=lunch_data['protein_calories'],
-        #     protein=lunch_data['protein_protein'],
-        #     carbs=lunch_data['protein_carbs'],
-        #     fat=lunch_data['protein_fat']
-        # )
-
-def generate_meal(available_ingredients, target_calories, target_protein):
+    # Filtro por ingredientes disponibles de cada categoria
     proteins = [i for i in available_ingredients if i.category == 'protein']
     carbohydrates = [i for i in available_ingredients if i.category == 'carb']
     vegetables = [i for i in available_ingredients if i.category == 'vegetable']
 
+    # Selecciona un ingrediente aleatorio de cada categoria
     protein_ingredient = random.choice(proteins)
     carb_ingredient = random.choice(carbohydrates)
     vegetable_ingredient = random.choice(vegetables)
 
+    # Calculos de cantidades para proteina, vegetales y carbohidratos
     protein_g = (target_protein * 100) / float(protein_ingredient.protein_100g)
     vegetable_g = 150
     protein_calories = (protein_g * float(protein_ingredient.calories_100g)) / 100
