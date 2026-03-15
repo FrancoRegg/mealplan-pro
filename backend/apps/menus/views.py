@@ -28,3 +28,12 @@ class GenerateMenuView(APIView):
             return Response(serializer_menu.data, status=status.HTTP_201_CREATED)
         except Profile.DoesNotExist:
             return Response({'error': 'Perfil no encontrado. Complete su perfil.'}, status=status.HTTP_404_NOT_FOUND)
+
+class ActiveMenuView(APIView):
+    def get(self, request):
+        try:
+            menu_active = Menu.objects.get(user=request.user, is_active=True)
+            serializer_menu_active = MenuSerializer(menu_active)
+            return Response(serializer_menu_active.data, status=status.HTTP_200_OK)
+        except Menu.DoesNotExist:
+            return Response({'error': 'No hay menu activo'}, status=status.HTTP_404_NOT_FOUND)
