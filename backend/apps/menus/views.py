@@ -37,3 +37,12 @@ class ActiveMenuView(APIView):
             return Response(serializer_menu_active.data, status=status.HTTP_200_OK)
         except Menu.DoesNotExist:
             return Response({'error': 'No hay menu activo'}, status=status.HTTP_404_NOT_FOUND)
+        
+class MenuByIdView(APIView):
+    def get(self, request, menu_id):
+        try:
+            menu = Menu.objects.get(user=request.user, id=menu_id)
+            serializer_menu_id = MenuSerializer(menu)
+            return Response(serializer_menu_id.data, status=status.HTTP_200_OK)
+        except Menu.DoesNotExist:
+            return Response({'error': 'El menú no existe'}, status=status.HTTP_404_NOT_FOUND)
