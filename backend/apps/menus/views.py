@@ -126,3 +126,21 @@ class RegenerateDayView(APIView):
             return Response({'error': 'Menú no encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except MenuDay.DoesNotExist:
             return Response({'error': 'El día solicitado no existe'}, status=status.HTTP_404_NOT_FOUND)
+        
+class LockDayView(APIView):
+    def patch(self, request, menu_id, day_number):
+        try:
+            menu = Menu.objects.get(user=request.user, id=menu_id)
+            day = MenuDay.objects.get(menu=menu, day_number=day_number)
+            # Obtengo el valor de 'is_locked'
+            lock_day = request.data.get('is_locked')
+            # Asigno a day el valor de lock_day y guardo day para actualizar la bd
+            day.is_locked = lock_day
+            day.save()
+            serializer = MenuDaySerializer(day)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Menu.DoesNotExist:
+            return Response({'error': 'Menú no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        except MenuDay.DoesNotExist:
+            return Response({'error': 'El día solicitado no existe'}, status=status.HTTP_404_NOT_FOUND)
+            
