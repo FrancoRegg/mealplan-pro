@@ -143,4 +143,12 @@ class LockDayView(APIView):
             return Response({'error': 'Menú no encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except MenuDay.DoesNotExist:
             return Response({'error': 'El día solicitado no existe'}, status=status.HTTP_404_NOT_FOUND)
-            
+
+class MenuView(APIView):
+    def get(self, request):
+        try:
+            menu = Menu.objects.filter(user=request.user)
+            serializer = MenuSerializer(menu, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'error': 'Ocurrió un error inesperado'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
