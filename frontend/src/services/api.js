@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:8000/api/v1"
 
-const login = async(email, password) => {
+export const login = async(email, password) => {
 
   try{
     const response = await fetch(`${API_URL}/auth/login/`,{
@@ -14,6 +14,24 @@ const login = async(email, password) => {
 
     return data
 
+  }catch(error){
+    console.error("¡Ups! Algo salió mal:", error);
+  }
+}
+
+export const register = async(email, password, password_confirm) => {
+
+  try{
+    const response = await fetch(`${API_URL}/auth/register/`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({email, password, password_confirm})
+    })
+    const data = await response.json()
+
+    return data
   }catch(error){
     console.error("¡Ups! Algo salió mal:", error);
   }
